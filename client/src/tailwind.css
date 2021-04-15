@@ -1,0 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.min-h-screen-half {
+  min-height: 50vh;
+}

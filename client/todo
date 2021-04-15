@@ -1,0 +1,5 @@
+[x] login user key
+[x] GET:/:userKey/todos
+[ ] /:userKey/todos have different return in GET & POST
+
+last thought = done Authorization: Bearer <token>
