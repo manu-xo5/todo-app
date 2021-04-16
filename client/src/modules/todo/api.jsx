@@ -34,8 +34,7 @@ function useMutateTodoListTodo(userKey) {
   return useMutation(
     ["todoLists", userKey],
     async (values) => {
-      const { todoListKey } = values;
-      const res = await fetch(`/${userKey}/todos/${todoListKey}`, {
+      const res = await fetch("/todos/todo", {
         method: "post",
         body: JSON.stringify(values),
         headers: {
@@ -43,14 +42,8 @@ function useMutateTodoListTodo(userKey) {
           Authorization: "Bearer " + token,
         },
       });
-      // fix this
-      const todoLists = await res.json();
-      const { message } = todoLists;
 
-      if (message) throw new Error(message);
-      if (!todoLists) throw new Error("No Todolists in response");
-
-      return todoLists;
+      return res.ok;
     },
     {
       onMutate: (values) => {
@@ -78,7 +71,7 @@ function useMutateNewTodoList(userKey) {
   return useMutation(
     ["todoLists", userKey],
     async (values) => {
-      const res = await fetch("/todos/", {
+      const res = await fetch("/todos/list", {
         method: "post",
         body: JSON.stringify(values),
         ...commanHeaders(token),
@@ -117,8 +110,7 @@ function useMutateUpdateTodoListKey() {
   return useMutation(
     ["todoLists", userKey],
     async (values) => {
-      const { todoListKey } = values;
-      const res = await fetch(`/${userKey}/todos/${todoListKey}`, {
+      const res = await fetch("/todos/list", {
         method: "put",
         body: JSON.stringify(values),
         headers: {
@@ -144,10 +136,10 @@ function useMutateDeleteTodoList() {
     ["todoLists", userKey],
     async (values) => {
       const { todoListKey } = values;
-      const res = await fetch(`/${userKey}/todos/${todoListKey}`, {
+      const res = await fetch(`/todos/${todoListKey}`, {
         method: "delete",
         headers: {
-          Authorization: token,
+          Authorization: "Bearer " + token,
         },
       });
 
@@ -156,9 +148,7 @@ function useMutateDeleteTodoList() {
     {
       onMutate: (values) => {
         queryClient.setQueryData(["todoLists", userKey], (oldData) => {
-          return oldData.filter(
-            (todoList) => todoList.title === values.todoListKey
-          );
+          return oldData.filter((todoList) => todoList.title === values.todoListKey);
         });
       },
       onSettled: () => {
@@ -178,13 +168,10 @@ function useMutateDeleteTodo() {
     ["todoLists", userKey],
     async (values) => {
       const { todoListKey, todoDelete } = values;
-      const res = await fetch(
-        `/${userKey}/todos/${todoListKey}/${todoDelete}`,
-        {
-          method: "delete",
-          headers: { Authorization: "Bearer " + token },
-        }
-      );
+      const res = await fetch(`/todos/${todoListKey}/${todoDelete}`, {
+        method: "delete",
+        headers: { Authorization: "Bearer " + token },
+      });
 
       return res.ok;
     },
@@ -192,11 +179,8 @@ function useMutateDeleteTodo() {
       onMutate: (values) => {
         const { todoListKey, todoDelete } = values;
         queryClient.setQueryData(["todoLists", userKey], (oldData) => {
-          const todoList = oldData.find(
-            (todoList) => todoList.title === todoListKey
-          );
-          todoList.todoList.splice(todoDelete, 1);
-
+          const todoList = oldData.find((todoList) => todoList.title === todoListKey);
+          todoList.todoList = todoList.todoList.filter((_todo) => _todo.todo !== todoDelete);
           return [...oldData];
         });
       },
@@ -216,8 +200,7 @@ function useMutateUpdateTodo() {
   return useMutation(
     ["todoLists", userKey],
     async (values) => {
-      const { todoListKey } = values;
-      const res = await fetch(`/${userKey}/todos/${todoListKey}/todo`, {
+      const res = await fetch(`/todos/todo`, {
         method: "put",
         body: JSON.stringify(values),
         headers: {
@@ -226,22 +209,17 @@ function useMutateUpdateTodo() {
         },
       });
 
-      const { todoLists } = await res.json();
-      return todoLists;
+      return res.ok;
     },
     {
       onMutate: (values) => {
-        const { todoListKey, todoKey, todo, isFinished } = values;
+        const { todoListKey, todoId, todo, isFinished } = values;
 
         queryClient.setQueryData(["todoLists", userKey], (oldData) => {
-          const todoList = oldData.find(
-            (todoList) => todoList.title === todoListKey
+          const todoList = oldData.find((todoList) => todoList.title === todoListKey);
+          todoList.todoList = todoList.todoList.map((_todo) =>
+            _todo._id === todoId ? Object.assign(_todo, filterNull({ todo, isFinished })) : _todo
           );
-          Object.assign(
-            todoList.todoList[todoKey],
-            filterNull({ todo, isFinished })
-          );
-
           return [...oldData];
         });
       },

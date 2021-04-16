@@ -3,11 +3,11 @@ import Input from "../../form/components/input";
 import { useMutateUpdateTodo } from "../api";
 import { FaCheck, FaTimes } from "react-icons/fa";
 
-function UpdateTodoForm({ todo, todoKey, todoListKey, onUpdate, onCancel }) {
+function UpdateTodoForm({ todo, todoListKey, onUpdate, onCancel }) {
   const initialFormValues = {
     todoListKey,
-    todoKey,
     todo: todo.todo,
+    todoId: todo._id,
   };
 
   const udpateTodo = useMutateUpdateTodo();
@@ -15,6 +15,7 @@ function UpdateTodoForm({ todo, todoKey, todoListKey, onUpdate, onCancel }) {
     initialValues: initialFormValues,
     onSubmit: async (values) => {
       await udpateTodo.mutateAsync(values);
+      console.log(values);
       onUpdate();
     },
   });

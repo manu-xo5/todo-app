@@ -13,11 +13,10 @@ function TodoList({ todoList, title }) {
       <p className="mb-3 text-center text-xl font-medium">{title}</p>
       <ul className="text-lg">
         {todoList.map((todo, idx) => (
-          <li key={todo} className="relative group">
+          <li key={todo._id} className="relative group">
             {isEditing ? (
               <UpdateTodoForm
                 todo={todo}
-                todoKey={idx}
                 todoListKey={title}
                 onUpdate={() => {
                   setIsEditing(false);
@@ -31,7 +30,7 @@ function TodoList({ todoList, title }) {
                     type="checkbox"
                     onChange={({ currentTarget }) =>
                       updateTodo.mutate({
-                        todoKey: idx,
+                        todoId: todo._id,
                         todoListKey: title,
                         isFinished: currentTarget.checked,
                       })
@@ -49,7 +48,7 @@ function TodoList({ todoList, title }) {
                     className="cursor-pointer hover:text-black"
                     onClick={() =>
                       deleteTodo.mutate({
-                        todoDelete: idx,
+                        todoDelete: todo.todo,
                         todoListKey: title,
                       })
                     }

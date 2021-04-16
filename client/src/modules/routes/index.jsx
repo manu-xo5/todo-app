@@ -27,9 +27,9 @@ function Routes() {
     <Switch>
       {routes.map((route) =>
         route.isPrivate != null ? (
-          <Proute reverse={route.isPrivate} {...route} />
+          <Proute key={route.path} reverse={route.isPrivate} {...route} />
         ) : (
-          <Route {...route} />
+          <Route key={route.path} {...route} />
         )
       )}
     </Switch>
